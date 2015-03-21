@@ -1,0 +1,6 @@
+src/player.o: src/player.c src/defs.h src/keyboard.h
+src/screen.o: src/screen.c src/player.h src/defs.h
+src/main.o: src/main.c src/screen.h src/canonctrl.h src/keyboard.h \
+  src/player.h src/defs.h
+src/keyboard.o: src/keyboard.c src/defs.h
+src/canonctrl.o: src/canonctrl.c
