@@ -3,35 +3,74 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
+#include <fcntl.h>
 #include <linux/input.h>
 #include "defs.h"
 
 char lastKeyDown; /* removal is planned */
 
 char *identifyKeyboardDevice() {
-    DIR *dir;
-    struct dirent *ent;
-    if ((dir = opendir("/dev/input/by-id")) != NULL) {
-        while ((ent = readdir(dir)) != NULL) {
-            /* do stuff */
-            char *name = ent->d_name;
-            int nameLen = strlen(name);
+    char *buf = (char *) malloc(1024);
+    char *buf2 = (char *) malloc(1024);
+    char *buf3 = (char *) malloc(1024);
+    char *ptr = buf;
 
-            char *lastPart = name + nameLen - 9;
+    int findEvent = 0;
 
-            if (!strcmp(lastPart,"event-kbd")) {
-                char *path = (char *) malloc(18 + nameLen);
-                strcat(path,"/dev/input/by-id/");
-                closedir(dir);
-                return strcat(path, name);
+    char *template = (char *) malloc(19);
+    strcpy(template, "/dev/input/");
+
+    int fd = open("/proc/bus/input/devices", O_RDONLY);
+    while (read(fd, ptr, 1)) {
+        if (*ptr == '\n') {
+            *ptr = 0;
+
+            if (strstr(buf,"EV=120013") != NULL) {
+                /* regex event\d+ */
+                ptr = strstr(buf3,"event");
+                char a[8] = "event";
+
+                int i;
+                int verified = 1;
+                for (i = 0; i < 5; i++) {
+                    if (a[i] != ptr[i]) {
+                        verified = 0;
+                        break;
+                    }
+                }
+
+                if (!verified) continue;
+
+                char c;
+                while ((c=ptr[i]) != ' ' && c != '\n')
+                    a[i++] = c;
+
+                strcat(template, a);
+                free(buf);
+                free(buf2);
+                free(buf3);
+                return template;
             }
+            char *tmp = buf;
+            /* switch make buf2 buf, buf3 buf2 and buf buf3 */
+            buf = buf3;
+            buf3 = buf2;
+            buf2 = tmp;
+
+            ptr = buf;
+        } else {
+            ptr++;
         }
-        printf("Could not identify keyboard device\n");
-        return NULL;
-    } else {
-        printf("Could not open directory /dev/input/by-id\n");
-        return NULL;
     }
+    close(fd);
+
+    free(buf);
+    free(buf2);
+    free(buf3);
+
+    fprintf(stderr, "Could not autodetect keyboard\n");
+    return NULL;
+
 }
 
 void loadKeyState() {

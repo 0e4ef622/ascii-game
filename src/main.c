@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <sys/ioctl.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
 #include "screen.h"
 #include "canonctrl.h"
 #include "keyboard.h"
@@ -20,14 +20,18 @@ int main(int argc, char **argv) {
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
+    /* autodetect keyboard device */
+
+    keyboardDevice = identifyKeyboardDevice();
+    if (keyboardDevice == NULL) return 1;
+    printf("%s",keyboardDevice);
+    kbdfd = open(keyboardDevice, O_RDONLY | O_NONBLOCK);
+    sleep(1);
+
     /* do setup stuff */
 
     screenSetup(w.ws_col, w.ws_row);
     playerSetup();
-
-    keyboardDevice = identifyKeyboardDevice();
-    if (keyboardDevice == NULL) return 1;
-    kbdfd = open(keyboardDevice, O_RDONLY | O_NONBLOCK);
 
     drawGround(19); /* drawGround function is temporary and will likely not exist once level file reading is implemented */
 

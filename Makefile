@@ -28,4 +28,5 @@ include .depend
 
 clean:
 	rm src/*.o
+	rm .depend
 

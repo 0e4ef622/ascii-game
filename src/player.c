@@ -10,16 +10,6 @@ void playerSetup() {
 }
 
 void updatePlayer() {
-    /*switch (lastKeyDown) {
-        case 'a':
-            if (playerPos.x > 0)
-                playerPos.x--;
-            break;
-        case 'd':
-            if (playerPos.x < scrnWidth - 1)
-                playerPos.x++;
-            break;
-    }*/
     if (keyState.w) {
         /* jump or climb up ladder or something */
     } else if (keyState.s) {
