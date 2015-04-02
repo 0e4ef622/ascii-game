@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <sys/ioctl.h>
 #include "screen.h"
 #include "canonctrl.h"
@@ -13,20 +14,25 @@ char *keyboardDevice;
 int kbdfd;
 
 int main(int argc, char **argv) {
-    setbuf(stdout, NULL); /* disable output buffering */
-    fcntl(0, F_SETFL, O_NONBLOCK); /* nonblock stdin read */
-    termNonCanon(); /* set terminal to non canonical and dont echo input (see canonctrl.c) */
-
-    struct winsize w;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
     /* autodetect keyboard device */
 
     keyboardDevice = identifyKeyboardDevice();
     if (keyboardDevice == NULL) return 1;
-    printf("%s",keyboardDevice);
     kbdfd = open(keyboardDevice, O_RDONLY | O_NONBLOCK);
-    sleep(1);
+
+    if (errno == EACCES) {
+       fprintf(stderr, "Permission denied when attempting to open file:\n%s\nDid you run ./configure or are you root?\n", keyboardDevice);
+       return 1;
+    }
+
+    setbuf(stdout, NULL); /* disable stdout buffering */
+
+    termSetup(); /* setup terminal (obviously) */
+    fcntl(0, F_SETFL, O_NONBLOCK); /* nonblock stdin read */
+
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
     /* do setup stuff */
 
@@ -51,7 +57,7 @@ int main(int argc, char **argv) {
         usleep(30000);
     }
 
-    printf("\e[?25h"); /* unhide cursor */
+    printf("\e[?25h\e[2J\e[;H"); /* unhide cursor, clear screen, move cursor to top left corner */
     termReset(); /* set terminal back to normal */
 
     return 0;

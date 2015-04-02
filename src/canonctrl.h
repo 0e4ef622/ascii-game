@@ -1,7 +1,7 @@
 #ifndef CANONCTRL_H
 #define CANONCTRL_H
 
-void termNonCanon();
+void termSetup();
 void termReset();
 
 #endif
