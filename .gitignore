@@ -1,4 +1,5 @@
 game
+.depend
 *.o
 *.swp
 *.swo

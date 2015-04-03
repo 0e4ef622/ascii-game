@@ -1,5 +1,6 @@
 #include "defs.h"
 #include "keyboard.h"
+#include "physics.h"
 
 position playerPos;
 position prevPlayerPos;
@@ -9,8 +10,13 @@ void playerSetup() {
     playerPos.y = prevPlayerPos.y = 18;
 }
 
+void jump() {
+    playerVelocityY = -2;
+}
+
 void updatePlayer() {
-    if (keyState.w) {
+    if (keyState.w && playerPos.y == 18) {
+        jump();
         /* jump or climb up ladder or something */
     } else if (keyState.s) {
         /* duck or climb down ladder or something */
@@ -21,4 +27,5 @@ void updatePlayer() {
     } else if (keyState.a && playerPos.x > 0) {
         playerPos.x--;
     }
+    updatePhysics();
 }
