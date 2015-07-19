@@ -16,8 +16,6 @@ char *identifyKeyboardDevice() {
     char *buf3 = (char *) malloc(1024);
     char *ptr = buf;
 
-    int findEvent = 0;
-
     char *template = (char *) malloc(19);
     strcpy(template, "/dev/input/");
 

@@ -8,5 +8,6 @@ void drawPlayer();
 void updateScreen();
 void drawScreen();
 void loadLevel(level *levelinfo);
+int coordToIndex(int x, int y);
 
 #endif /* SCREEN_H */

@@ -29,19 +29,19 @@ int main(int argc, char **argv) {
 
     kbdfd = open(keyboardDevice, O_RDONLY | O_NONBLOCK);
 
-    if (errno == EACCES) {
-        char part1[200] = "\nPermission denied when attempting to open file:\n";
-        char *part2 = (argc < 2) ? "\n\nDid you run ./configure or are you root?\n\n" : "Does the file exist?\nDo you have permissions to read the file?\n\n";
-        fprintf(stderr, "%s%s%s", part1, keyboardDevice, part2);
-        return 1;
-    }
-
     level *levelinfo = getLevelFromFile((argc < 2) ? "testfile" : argv[1]);
     if (levelinfo == NULL) {
         fprintf(stderr,"DO IT RITE NOOB\n");
         return 1;
     }
 
+    if (errno == EACCES) {
+        char part1[200] = "\nPermission denied when attempting to open file:\n";
+        char *part2 = (argc < 2) ? "\n\nAre you root?\n\n" : "Does the file exist?\nDo you have permissions to read the file?\n\n";
+        fprintf(stderr, "%s%s%s", part1, keyboardDevice, part2);
+        return 1;
+    }
+    
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
@@ -62,7 +62,6 @@ int main(int argc, char **argv) {
     screenSetup(w.ws_col, w.ws_row);
     playerSetup();
 
-    /*drawGround(19); /* drawGround function is temporary and will likely not exist once level file reading is implemented */
     loadLevel(levelinfo);
 
     char exit_reason = 0; /* 0 is quit, 1 is player haxed out of border, 2 is player fell to death */

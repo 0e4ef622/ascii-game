@@ -4,11 +4,14 @@
 #include "defs.h"
 #include "constants.h"
 #include "level.h"
+#include "screen.h"
 
 #define GRAVITY .4 /* characters per 30,000 microseconds squared */
 
 float precisePlayerPosY = 18;
 float playerVelocityY = 0;
+
+int collision(level *levelinfo, int x, int y, int dir);
 
 void updatePhysics(level *levelinfo) {
 
@@ -19,7 +22,7 @@ void updatePhysics(level *levelinfo) {
 
     for (i = 0; i < abs(diff); i++) {
 
-        y = playerPos.y + (diff & -2147483648 | 1)*i;
+        y = playerPos.y + ((diff & -2147483648) | 1)*i;
         int dir = (diff < 0) ? UP : DOWN;
 
         if (collision(levelinfo, playerPos.x, y, dir)) {
@@ -44,19 +47,29 @@ void updatePhysics(level *levelinfo) {
 int collision(level *levelinfo, int x, int y, int dir) {
     int ret = 0;
     if (dir & UP) {
-        int i = coordToIndex(x, y-1);
-        if (levelinfo->data[i] == '#') ret = ret | UP;
-    } else if (dir & DOWN) {
+        if (y == 0) ret = ret | UP;
+        else {
+            int i = coordToIndex(x, y-1);
+            if (levelinfo->data[i] == '#') ret = ret | UP;
+        }
+    }
+    if (dir & DOWN) {
         int i = coordToIndex(x, y+1);
         if (levelinfo->data[i] == '#') ret = ret | DOWN;
-    } else if (dir & LEFT) {
-        int i = coordToIndex(x-1, y);
-        if (levelinfo->data[i] == '#') ret = ret | LEFT;
-    } else if (dir & RIGHT) {
-        int i = coordToIndex(x+1, y);
-        if (levelinfo->data[i] == '#') ret = ret | RIGHT;
-    } else {
-        fprintf(stderr, "Some idiot screwed up trying to call collision() which is defined in physics.c\n");
+    }
+    if (dir & LEFT) {
+        if (x == 0) ret = ret | LEFT;
+        else {
+            int i = coordToIndex(x-1, y);
+            if (levelinfo->data[i] == '#') ret = ret | LEFT;
+        }
+    }
+    if (dir & RIGHT) {
+        if (x == scrnWidth) ret = ret | RIGHT;
+        else {
+            int i = coordToIndex(x+1, y);
+            if (levelinfo->data[i] == '#') ret = ret | RIGHT;
+        }
     }
     return ret;
 }
