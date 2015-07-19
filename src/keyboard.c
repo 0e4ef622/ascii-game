@@ -5,6 +5,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <linux/input.h>
+#include "keyboard.h"
 #include "defs.h"
 
 char lastKeyDown; /* removal is planned */
@@ -25,8 +26,7 @@ char *identifyKeyboardDevice() {
         if (*ptr == '\n') {
             *ptr = 0;
 
-            if (strstr(buf,"EV=120013") != NULL) {
-                /* regex event\d+ */
+            if (strstr(buf,"EV=120013") || strstr(buf,"EV=12001f")) {
                 ptr = strstr(buf3,"event");
                 char a[8] = "event";
 

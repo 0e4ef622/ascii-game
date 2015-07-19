@@ -3,6 +3,8 @@
 #include <string.h>
 #include "player.h"
 #include "defs.h"
+#include "screen.h"
+#include "level.h"
 
 char screen[scrnWidth * scrnHeight];
 int padding[2];
@@ -30,8 +32,8 @@ void drawBorder() {
 }
 
 void screenSetup(int cols, int rows) {
-    *padding = cols/2 - scrnWidth/2;
-    padding[1] = rows/2 - scrnHeight/2;
+    *padding = cols/2 - scrnWidth/2 + 1;
+    padding[1] = rows/2 - scrnHeight/2 + 1;
 
     printf("\e[2J\e[;H\e[?25l"); /* clear screen, move cursor to top left corner, hide cursor */
 
@@ -49,6 +51,10 @@ void drawGround(int y) {
     int i;
     for (i = 0; i < scrnWidth; i++)
         screen[coordToIndex(i,y)] = '#';
+}
+
+void loadLevel(level *levelinfo) {
+    memcpy(screen, levelinfo->data, levelinfo->width * levelinfo->height);
 }
 
 void updateScreen() {

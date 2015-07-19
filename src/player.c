@@ -1,6 +1,8 @@
 #include "defs.h"
 #include "keyboard.h"
 #include "physics.h"
+#include "level.h"
+#include "constants.h"
 
 position playerPos;
 position prevPlayerPos;
@@ -14,8 +16,8 @@ void jump() {
     playerVelocityY = -2;
 }
 
-void updatePlayer() {
-    if (keyState.w && playerPos.y == 18) {
+void updatePlayer(level *levelinfo) {
+    if (keyState.w && collision(levelinfo, playerPos.x, playerPos.y, DOWN) && playerVelocityY == 0) {
         jump();
         /* jump or climb up ladder or something */
     } else if (keyState.s) {
@@ -23,9 +25,11 @@ void updatePlayer() {
     }
 
     if (keyState.d && playerPos.x < scrnWidth - 1) {
-        playerPos.x++;
+        if (!collision(levelinfo, playerPos.x, playerPos.y, RIGHT))
+            playerPos.x++;
     } else if (keyState.a && playerPos.x > 0) {
-        playerPos.x--;
+        if (!collision(levelinfo, playerPos.x, playerPos.y, LEFT))
+            playerPos.x--;
     }
-    updatePhysics();
+    updatePhysics(levelinfo);
 }
