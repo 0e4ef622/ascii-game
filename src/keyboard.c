@@ -5,6 +5,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <linux/input.h>
+#include <pthread.h>
 #include "keyboard.h"
 #include "defs.h"
 
@@ -71,7 +72,7 @@ char *identifyKeyboardDevice() {
 
 }
 
-void loadKeyState() {
+/*void loadKeyState() {
     char keymp[KEY_MAX/8 + 1];
 
     memset(keymp, 0, sizeof(keymp));
@@ -92,6 +93,26 @@ void loadKeyState() {
     keyState.a = keys[1];
     keyState.s = keys[2];
     keyState.d = keys[3];
+}*/
+
+void kbdloop(void (*func)(int,int)) {
+    struct input_event ev;
+    while (1) {
+        int ret = read(kbdfd, &ev, sizeof(ev));
+        if (ret > 0 && ev.type == EV_KEY)
+            (*func)(ev.code, ev.value);
+        usleep(500);
+    }
+}
+
+void onKeyDown(void (*func)(int, int)) {
+    pthread_attr_t attr;
+    int ret = pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+    pthread_t thread;
+    pthread_create(&thread, &attr, kbdloop, func);
+    pthread_attr_destroy(&attr);
 }
 
 void loadLastKeyDown() {

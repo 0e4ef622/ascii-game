@@ -23,22 +23,9 @@ int main(int argc, char **argv) {
 
     /* autodetect keyboard device */
 
-    keyboardDevice = identifyKeyboardDevice();
-
-    if (keyboardDevice == NULL) return 1;
-
-    kbdfd = open(keyboardDevice, O_RDONLY | O_NONBLOCK);
-
-    level *levelinfo = getLevelFromFile((argc < 2) ? "testfile" : argv[1]);
+        level *levelinfo = getLevelFromFile((argc < 2) ? "testfile" : argv[1]);
     if (levelinfo == NULL) {
         fprintf(stderr,"DO IT RITE NOOB\n");
-        return 1;
-    }
-
-    if (errno == EACCES) {
-        char part1[200] = "\nPermission denied when attempting to open file:\n";
-        char *part2 = (argc < 2) ? "\n\nAre you root?\n\n" : "Does the file exist?\nDo you have permissions to read the file?\n\n";
-        fprintf(stderr, "%s%s%s", part1, keyboardDevice, part2);
         return 1;
     }
     
@@ -50,6 +37,18 @@ int main(int argc, char **argv) {
     if (w.ws_col < scrnWidth+2 || w.ws_row < scrnHeight+2) {
         printf("Terminal is too small. Are you sure you want to continue? [y/n]: ");
         if (getchar() != 'y') return 1;
+    }
+
+    keyboardDevice = identifyKeyboardDevice();
+    if (keyboardDevice == NULL) return 1;
+    kbdfd = open(keyboardDevice, O_RDONLY | O_NONBLOCK);
+
+    if (errno == EACCES) {
+        char part1[200] = "\nPermission denied when attempting to open file:\n";
+        char *part2 = (argc < 2) ? "\n\nAre you root?\n\n" :
+            "Does the file exist?\nDo you have permissions to read the file?\n\n";
+        fprintf(stderr, "%s%s%s", part1, keyboardDevice, part2);
+        return 1;
     }
 
     setbuf(stdout, NULL); /* disable stdout buffering */
@@ -66,7 +65,7 @@ int main(int argc, char **argv) {
 
     char exit_reason = 0; /* 0 is quit, 1 is player haxed out of border, 2 is player fell to death */
     while (1) {
-        loadKeyState();
+        /*loadKeyState();*/
         updatePlayer(levelinfo);
         if (playerPos.x < 0 || playerPos.x > scrnWidth || playerPos.y < 0) {
             exit_reason = 1;

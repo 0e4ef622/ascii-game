@@ -2,7 +2,7 @@ SOURCES=$(wildcard src/*.c)
 OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 
 game: .depend $(OBJECTS)
-	clang -lm -O3 -o game $(OBJECTS)
+	clang -lm -lpthread -O3 -o game $(OBJECTS)
 
 $(OBJECTS): %.o: %.c
 	clang -Wall -O3 -c -o $@ $<

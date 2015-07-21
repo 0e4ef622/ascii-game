@@ -1,3 +1,4 @@
+#include <linux/input.h>
 #include "defs.h"
 #include "keyboard.h"
 #include "physics.h"
@@ -7,13 +8,24 @@
 position playerPos;
 position prevPlayerPos;
 
+void jump() {
+    playerVelocityY = -2;
+}
+
+void keyEvHandler(int key, int val) {
+    if (key == KEY_W && val != 2) {
+        keyState.w = val;
+        if (val) jump();
+    }
+    else if (key == KEY_A && val != 2) keyState.a = val;
+    else if (key == KEY_S && val != 2) keyState.s = val;
+    else if (key == KEY_D && val != 2) keyState.d = val;
+}
+
 void playerSetup() {
     playerPos.x = prevPlayerPos.x = 0;
     playerPos.y = prevPlayerPos.y = 18;
-}
-
-void jump() {
-    playerVelocityY = -2;
+    onKeyDown(&keyEvHandler);
 }
 
 void updatePlayer(level *levelinfo) {

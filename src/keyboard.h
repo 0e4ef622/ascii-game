@@ -9,8 +9,9 @@ struct {
 } keyState;
 
 char *identifyKeyboardDevice();
-void loadKeyState();
+/*void loadKeyState();*/
 void loadLastKeyDown();
+void onKeyDown(void (*func)(int,int));
 
 extern char *keyboardDevice;
 extern char lastKeyDown;
