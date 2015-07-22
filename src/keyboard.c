@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include "keyboard.h"
 #include "defs.h"
+#include "level.h"
 
 char lastKeyDown; /* removal is planned */
 
@@ -95,23 +96,32 @@ char *identifyKeyboardDevice() {
     keyState.d = keys[3];
 }*/
 
-void kbdloop(void (*func)(int,int)) {
+typedef struct {
+    level *levelinfo;
+    void (*func)(level*, int, int);
+} thing;
+
+void kbdloop(thing *athing) {
     struct input_event ev;
     while (1) {
         int ret = read(kbdfd, &ev, sizeof(ev));
         if (ret > 0 && ev.type == EV_KEY)
-            (*func)(ev.code, ev.value);
+            athing->func(athing->levelinfo, ev.code, ev.value);
         usleep(500);
     }
 }
 
-void onKeyDown(void (*func)(int, int)) {
+void onKeyDown(level *levelinfo, void (*func)(level*, int, int)) {
     pthread_attr_t attr;
     int ret = pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
+    thing *athing = (thing *) malloc(sizeof(thing));
+    athing->levelinfo = levelinfo;
+    athing->func = func;
+
     pthread_t thread;
-    pthread_create(&thread, &attr, kbdloop, func);
+    pthread_create(&thread, &attr, kbdloop, athing);
     pthread_attr_destroy(&attr);
 }
 

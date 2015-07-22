@@ -12,24 +12,25 @@ void jump() {
     playerVelocityY = -2;
 }
 
-void keyEvHandler(int key, int val) {
+void keyEvHandler(level *levelinfo, int key, int val) {
     if (key == KEY_W && val != 2) {
         keyState.w = val;
-        if (val) jump();
+        if (val && collision(levelinfo, playerPos.x, playerPos.y, DOWN))/* && playerVelocityY == 0)*/
+            jump();
     }
     else if (key == KEY_A && val != 2) keyState.a = val;
     else if (key == KEY_S && val != 2) keyState.s = val;
     else if (key == KEY_D && val != 2) keyState.d = val;
 }
 
-void playerSetup() {
+void playerSetup(level *levelinfo) {
     playerPos.x = prevPlayerPos.x = 0;
     playerPos.y = prevPlayerPos.y = 18;
-    onKeyDown(&keyEvHandler);
+    onKeyDown(levelinfo, &keyEvHandler);
 }
 
 void updatePlayer(level *levelinfo) {
-    if (keyState.w && collision(levelinfo, playerPos.x, playerPos.y, DOWN) && playerVelocityY == 0) {
+    if (keyState.w && collision(levelinfo, playerPos.x, playerPos.y, DOWN)) {
         jump();
         /* jump or climb up ladder or something */
     } else if (keyState.s) {

@@ -1,10 +1,10 @@
 src/physics.o: src/physics.c src/player.h src/defs.h src/constants.h \
   src/level.h src/screen.h
-src/player.o: src/player.c src/defs.h src/keyboard.h src/physics.h \
-  src/level.h src/constants.h
+src/player.o: src/player.c src/defs.h src/keyboard.h src/level.h \
+  src/physics.h src/constants.h
 src/screen.o: src/screen.c src/player.h src/defs.h src/screen.h src/level.h
 src/level.o: src/level.c src/level.h
 src/main.o: src/main.c src/screen.h src/level.h src/canonctrl.h \
   src/keyboard.h src/player.h src/defs.h
-src/keyboard.o: src/keyboard.c src/keyboard.h src/defs.h
+src/keyboard.o: src/keyboard.c src/keyboard.h src/level.h src/defs.h
 src/canonctrl.o: src/canonctrl.c

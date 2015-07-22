@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     /* more setup */
 
     screenSetup(w.ws_col, w.ws_row);
-    playerSetup();
+    playerSetup(levelinfo);
 
     loadLevel(levelinfo);
 
