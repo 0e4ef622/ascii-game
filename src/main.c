@@ -10,6 +10,7 @@
 #include "player.h"
 #include "defs.h"
 #include "level.h"
+#include "errnomsg.h"
 
 char *keyboardDevice;
 int kbdfd;
@@ -21,14 +22,13 @@ void cleanup() {
 
 int main(int argc, char **argv) {
 
-    /* autodetect keyboard device */
+    /* get a level information from a file */
 
         level *levelinfo = getLevelFromFile((argc < 2) ? "testfile" : argv[1]);
     if (levelinfo == NULL) {
-        fprintf(stderr,"DO IT RITE NOOB\n");
         return 1;
     }
-    
+
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
@@ -36,18 +36,18 @@ int main(int argc, char **argv) {
 
     if (w.ws_col < scrnWidth+2 || w.ws_row < scrnHeight+2) {
         printf("Terminal is too small. Are you sure you want to continue? [y/n]: ");
-        if (getchar() != 'y') return 1;
+        char c = getchar();
+        if (c != 'y' && c != 'y') return 1;
     }
+
+    /* autodetect keyboard device */
 
     keyboardDevice = identifyKeyboardDevice();
     if (keyboardDevice == NULL) return 1;
     kbdfd = open(keyboardDevice, O_RDONLY | O_NONBLOCK);
 
-    if (errno == EACCES) {
-        char part1[200] = "\nPermission denied when attempting to open file:\n";
-        char *part2 = (argc < 2) ? "\n\nAre you root?\n\n" :
-            "Does the file exist?\nDo you have permissions to read the file?\n\n";
-        fprintf(stderr, "%s%s%s", part1, keyboardDevice, part2);
+    if (kbdfd == -1) {
+        errno_msg(keyboardDevice);
         return 1;
     }
 
