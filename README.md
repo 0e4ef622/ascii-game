@@ -5,6 +5,8 @@ A game similar to super mario bros. You need a physical keyboard to play this si
 
 Compile with `make`
 
+-----------------------------------------------
+
 If you don't wanna keep running this game as root, you have to add yourself to the `input` group by running
 
     usermod -a -G input <your-username>
